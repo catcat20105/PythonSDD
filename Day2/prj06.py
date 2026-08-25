@@ -20,6 +20,8 @@ pygame.init()
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("GAME")
 clock = pygame.time.Clock()
+font = pygame.font.Font(None, 32)
+game_over_font = pygame.font.Font(None, 72)
 ##########objects##########
 class Brick:
     def __init__(self, x, y, width, height, color):
@@ -62,6 +64,7 @@ class Ball:
     def launch(self):
         self.launched = True
     def update(self, paddle):
+        missed = False
         if not self.launched:
             self.position.update(
                 paddle.rect.centerx,
@@ -79,8 +82,10 @@ class Ball:
                 self.position.y = self.radius
                 self.velocity.y *= -1
             if self.position.y - self.radius > height:
+                missed = True
                 self.reset(paddle)
         self.rect.center = (round(self.position.x), round(self.position.y))
+        return missed
     def draw(self, surface):
         pygame.draw.circle(surface,ball_color, self.rect.center, self.radius)
 ##########.##########
@@ -133,6 +138,8 @@ paddle = Paddle()
 ##########ball##########
 ball = Ball(paddle)
 ##########main code##########
+lives = 3
+game_over = False
 running = True
 while running:
     clock.tick(fps)
@@ -143,16 +150,37 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
             elif event.key == pygame.K_SPACE:
-                ball.launch()
-    keys = pygame.key.get_pressed()
-    paddle.update(keys)
-    ball.update(paddle)
-    handle_collisions(ball, paddle, bricks)
+                if game_over:
+                    lives = 3
+                    bricks = create_bricks()
+                    paddle = Paddle()
+                    ball = Ball(paddle)
+                    game_over = False
+                    ball.launch()
+                else:
+                    ball.launch()
+    if not game_over:
+        keys = pygame.key.get_pressed()
+        paddle.update(keys)
+        if ball.update(paddle):
+            lives -= 1
+            if lives == 0:
+                game_over = True
+        handle_collisions(ball, paddle, bricks)
     screen.fill(background)
     for Brick in bricks:
         Brick.draw(screen)
     paddle.draw(screen)
     ball.draw(screen)
+    lives_text = font.render(f"Lives: {lives}", True, ball_color)
+    screen.blit(lives_text, (10, 10))
+    if game_over:
+        game_over_text = game_over_font.render("GAME OVER", True, ball_color)
+        game_over_rect = game_over_text.get_rect(center=(width // 2, height // 2 - 20))
+        screen.blit(game_over_text, game_over_rect)
+        replay_text = font.render("Press SPACE to replay", True, ball_color)
+        replay_rect = replay_text.get_rect(center=(width // 2, height // 2 + 40))
+        screen.blit(replay_text, replay_rect)
     pygame.display.flip()
 ##########game over settings##########
 pygame.quit()
