@@ -1,0 +1,10 @@
+{"kind":"deck","id":"pr/ovrjvn","name":"Deck"}
+{"kind":"layout","layoutId":"a81d3c84-b35a-4795-887a-940794b7bd70","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"1548031b-2e1c-48d6-9773-bf6b23aadf5c","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/5idikv","slide":1,"title":"Obstacles","textShapes":1}
+{"kind":"shape","id":"sh/uts7i94b","slide":1,"bbox":[100,100,200,100]}
+{"kind":"shape","id":"sh/hgjqdo3m","slide":1,"bbox":[100,240,200,0]}
+{"kind":"shape","id":"sh/wfa9kjmh","slide":1,"bbox":[180,300,26,26]}
+{"kind":"textbox","id":"sh/jil8fels","slide":1,"text":"Obstacles\nand levels","textPreview":"Obstacles | and levels","textChars":20,"textLines":2,"bbox":[100,350,400,100]}
+{"kind":"shape","id":"sh/ihcrmt47","slide":1,"bbox":[500,300,60,30]}
+{"kind":"notes","id":"nt/5idikv","slide":1,"text":""}

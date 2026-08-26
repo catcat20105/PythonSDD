@@ -1,0 +1,12 @@
+import { Presentation, PresentationFile } from "file:///C:/Users/CJSCOPE/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs";
+console.log("loaded");
+const presentation = Presentation.create({ slideSize: { width: 1280, height: 720 } });
+const slide = presentation.slides.add();
+slide.background.fill = "#FFFFFF";
+const box = slide.shapes.add({ geometry: "textbox", position: { left: 80, top: 80, width: 500, height: 100 }, fill: "none", line: { style: "solid", fill: "none", width: 0 } });
+box.text = "test";
+box.text.style = { fontSize: 40, color: "#111111" };
+console.log("created");
+const pptx = await PresentationFile.exportPptx(presentation);
+await pptx.save("C:/Users/CJSCOPE/Desktop/PythonSDD/day2_slides_build/test-artifact.pptx");
+console.log("saved");

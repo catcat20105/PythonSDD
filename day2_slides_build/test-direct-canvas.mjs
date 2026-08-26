@@ -1,0 +1,11 @@
+import fs from "node:fs/promises";
+import { Canvas } from "file:///C:/Users/CJSCOPE/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/Lib/site-packages/artifact_tool_v2/bin/node_modules/skia-canvas/lib/index.mjs";
+console.log("imported");
+const c = new Canvas(100, 100);
+console.log("canvas", c.width, c.height, c.engine);
+c.getContext("2d").fillStyle = "#ffffff";
+c.getContext("2d").fillRect(0, 0, 100, 100);
+console.log("drawn");
+const b = await c.toBuffer("png");
+await fs.writeFile("C:/Users/CJSCOPE/Desktop/PythonSDD/day2_slides_build/direct-canvas.png", b);
+console.log("saved");

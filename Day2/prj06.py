@@ -1,5 +1,6 @@
 ##########import##########
 import pygame
+import random
 ##########basic settings##########
 width = 800
 height = 600
@@ -7,6 +8,7 @@ fps = 60
 background = (0, 0, 0)
 paddle_color = (245, 245, 255)
 ball_color = (255, 255, 255)
+obstacle_color = (255, 165, 0)
 brick_colors = [
     (244, 114, 182),
     (251, 146, 60),
@@ -88,6 +90,14 @@ class Ball:
         return missed
     def draw(self, surface):
         pygame.draw.circle(surface,ball_color, self.rect.center, self.radius)
+
+class Obstacle:
+    def __init__(self, x, y):
+        self.radius = 18
+        self.rect = pygame.Rect(0, 0, self.radius * 2, self.radius * 2)
+        self.rect.center = (x, y)
+    def draw(self, surface):
+        pygame.draw.circle(surface, obstacle_color, self.rect.center, self.radius)
 ##########.##########
 def create_bricks():
     bricks = []
@@ -107,6 +117,14 @@ def create_bricks():
 
     return bricks
 
+def create_obstacles(level):
+    obstacles = []
+    for _ in range(level - 1):
+        x = random.randint(50, width - 50)
+        y = random.randint(270, height - 100)
+        obstacles.append(Obstacle(x, y))
+    return obstacles
+
 def bounce_from_rect(ball, target_rect):
     overlaps = {
         "left": ball.rect.right - target_rect.left,
@@ -119,7 +137,7 @@ def bounce_from_rect(ball, target_rect):
         ball.velocity.x *= -1
     else:
         ball.velocity.y *= -1
-def handle_collisions(ball, paddle, bricks):
+def handle_collisions(ball, paddle, bricks, obstacles):
     if ball.velocity.y > 0 and ball.rect.colliderect(paddle.rect):
         ball.rect.bottom = paddle.rect.top
         ball.position.y = ball.rect.centery
@@ -131,6 +149,10 @@ def handle_collisions(ball, paddle, bricks):
             brick.alive = False
             bounce_from_rect(ball, brick.rect)
             break
+    for obstacle in obstacles:
+        if ball.rect.colliderect(obstacle.rect):
+            bounce_from_rect(ball, obstacle.rect)
+            break
 ##########bricks##########
 bricks = create_bricks()
 ##########paddle##########
@@ -138,7 +160,10 @@ paddle = Paddle()
 ##########ball##########
 ball = Ball(paddle)
 ##########main code##########
-lives = 3
+lives = 4587237521477864976498
+level = 1
+obstacles = create_obstacles(level)
+level_message_frames = 0
 game_over = False
 running = True
 while running:
@@ -152,7 +177,10 @@ while running:
             elif event.key == pygame.K_SPACE:
                 if game_over:
                     lives = 3
+                    level = 1
                     bricks = create_bricks()
+                    obstacles = create_obstacles(level)
+                    level_message_frames = 0
                     paddle = Paddle()
                     ball = Ball(paddle)
                     game_over = False
@@ -160,20 +188,43 @@ while running:
                 else:
                     ball.launch()
     if not game_over:
-        keys = pygame.key.get_pressed()
-        paddle.update(keys)
-        if ball.update(paddle):
-            lives -= 1
-            if lives == 0:
-                game_over = True
-        handle_collisions(ball, paddle, bricks)
+        if level_message_frames > 0:
+            level_message_frames -= 1
+            if level_message_frames == 0:
+                ball.launch()
+        else:
+            keys = pygame.key.get_pressed()
+            paddle.update(keys)
+            if ball.update(paddle):
+                lives -= 1
+                if lives == 0:
+                    game_over = True
+            handle_collisions(ball, paddle, bricks, obstacles)
+            # Go to the next level when no bricks are alive.
+            if lives > 0 and not any(brick.alive for brick in bricks):
+                level += 1
+                bricks = create_bricks()
+                obstacles = create_obstacles(level)
+                ball.reset(paddle)
+                level_message_frames = fps * 3
     screen.fill(background)
-    for Brick in bricks:
-        Brick.draw(screen)
-    paddle.draw(screen)
-    ball.draw(screen)
+    if level_message_frames == 0 or game_over:
+        for brick in bricks:
+            brick.draw(screen)
+        for obstacle in obstacles:
+            obstacle.draw(screen)
+        paddle.draw(screen)
+        ball.draw(screen)
     lives_text = font.render(f"Lives: {lives}", True, ball_color)
     screen.blit(lives_text, (10, 10))
+    level_text = font.render(f"Level: {level}", True, ball_color)
+    screen.blit(level_text, (10, 40))
+    obstacle_text = font.render(f"Obstacles: {len(obstacles)}", True, obstacle_color)
+    screen.blit(obstacle_text, (10, 70))
+    if level_message_frames > 0 and not game_over:
+        level_text = game_over_font.render(f"LEVEL {level}", True, ball_color)
+        level_rect = level_text.get_rect(center=(width // 2, height // 2))
+        screen.blit(level_text, level_rect)
     if game_over:
         game_over_text = game_over_font.render("GAME OVER", True, ball_color)
         game_over_rect = game_over_text.get_rect(center=(width // 2, height // 2 - 20))
