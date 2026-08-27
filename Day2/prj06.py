@@ -209,8 +209,8 @@ while running:
                 level_message_frames = fps * 3
     screen.fill(background)
     if level_message_frames == 0 or game_over:
-        for brick in bricks:
-            brick.draw(screen)
+        for Brick in bricks:
+            Brick.draw(screen)
         for obstacle in obstacles:
             obstacle.draw(screen)
         paddle.draw(screen)
